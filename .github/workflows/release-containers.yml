@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - 'containers/jenkins-inbound-agent/Dockerfile'
+      - 'containers/logstash-with-opensearch-plugin/Dockerfile'
   workflow_dispatch:
     inputs:
       container:
@@ -14,6 +15,7 @@ on:
         type: choice
         options:
           - jenkins-inbound-agent
+          - logstash-with-opensearch-plugin
 
 jobs:
   # ---------------------------------------------------------------------------
@@ -26,6 +28,8 @@ jobs:
     outputs:
       jenkins_inbound_agent_release: ${{ steps.check.outputs.jenkins_inbound_agent_release }}
       jenkins_inbound_agent_version: ${{ steps.check.outputs.jenkins_inbound_agent_version }}
+      logstash_with_opensearch_plugin_release: ${{ steps.check.outputs.logstash_with_opensearch_plugin_release }}
+      logstash_with_opensearch_plugin_version: ${{ steps.check.outputs.logstash_with_opensearch_plugin_version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -54,7 +58,7 @@ jobs:
             fi
           }
 
-          CONTAINERS=("jenkins-inbound-agent")
+          CONTAINERS=("jenkins-inbound-agent" "logstash-with-opensearch-plugin")
 
           for container in "${CONTAINERS[@]}"; do
             var=$(echo "${container}" | tr '-' '_')
@@ -112,6 +116,12 @@ jobs:
             version_key: jenkins_inbound_agent_version
             context: containers/jenkins-inbound-agent
             platforms: linux/amd64,linux/arm64
+            push_latest: false
+          - name: logstash-with-opensearch-plugin
+            release_flag: logstash_with_opensearch_plugin_release
+            version_key: logstash_with_opensearch_plugin_version
+            context: containers/logstash-with-opensearch-plugin
+            platforms: linux/amd64
             push_latest: false
     env:
       REGISTRY: ghcr.io
